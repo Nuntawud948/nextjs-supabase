@@ -3,7 +3,7 @@
 // 1. สำหรับข้อมูลที่ส่งมาจาก Supabase
 export interface VehicleResponseDTO {
   id: string
-  plate_number: string
+  license: string
   brand: string
   model: string
   status: string
@@ -11,7 +11,7 @@ export interface VehicleResponseDTO {
 }
 // 2. สำหรับส่งข้อมูลไปบันทึก หรือ อัปเดต (Request)
 export interface VehicleRequestDTO {
-  plate_number: string
+  license: string
   brand: string
   model: string
   status: string

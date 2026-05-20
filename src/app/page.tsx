@@ -1,5 +1,4 @@
 'use client'
-
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
@@ -10,15 +9,17 @@ export default function HomePage() {
   const [vehicles, setVehicles] = useState<VehicleResponseDTO[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
+    // src/app/page.tsx
+
+ useEffect(() => {
     async function fetchVehicles() {
-      // ดึงข้อมูลทั้งหมดจากตาราง vehicles
-      const { data, error } = await supabase
-        .from('vehicles')
-        .select('*')
+      // 🔄 เอา .schema('vsms') ออก และกลับมาเรียกตาราง 'vehicles' ตรงๆ
+     const { data, error } = await supabase
+  .from('vehicles') 
+  .select('*') // 🟢 ดึงมาทุกคอลัมน์รวมถึง created_at ด้วย สบายมากครับ!
 
       if (error) {
-        console.error('Error fetching vehicles:', error)
+        console.error('Error fetching vehicles:', error.message || error)
       } else if (data) {
         setVehicles(data)
       }
@@ -48,7 +49,7 @@ export default function HomePage() {
           <div className="grid gap-4 md:grid-cols-2">
             {vehicles.map((vehicle) => (
               <div key={vehicle.id} className="p-4 border rounded-lg shadow-sm bg-card text-card-foreground">
-                <div className="font-semibold text-lg text-blue-600">{vehicle.plate_number}</div>
+                <div className="font-semibold text-lg text-blue-600">{vehicle.license}</div>
                 <div className="text-sm text-gray-600">ยี่ห้อ: {vehicle.brand} | รุ่น: {vehicle.model}</div>
                 <div className="mt-2 text-xs inline-block px-2 py-1 rounded bg-secondary">
                   สถานะ: {vehicle.status}
