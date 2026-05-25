@@ -2,12 +2,14 @@
 
 import React from 'react'
 import { HumanResourceIndex } from '@/app/HumanResource/humanresourceIndex'
+import { MenuManagementIndex } from '@/app/MenuManagement/menuManagementIndex'
 
 export const MODULE_REGISTRY = {
   HUMAN_RESOURCE: 'humanresource',
   CUSTOMER: 'customer',
   PURCHASE: 'purchase',
-  MAINTENANCE: 'maintenance'
+  MAINTENANCE: 'maintenance',
+  MENU_MANAGEMENT: 'menus' // 🟢 ลงทะเบียนคีย์เวิร์ดหน้า /menus
 } as const
 
 interface ModuleDispatcherProps {
@@ -21,6 +23,9 @@ export function ModuleDispatcher({ slug, userEmail }: ModuleDispatcherProps) {
   switch (currentModule) {
     case MODULE_REGISTRY.HUMAN_RESOURCE:
       return <HumanResourceIndex userEmail={userEmail} />
+
+    case MODULE_REGISTRY.MENU_MANAGEMENT:
+      return <MenuManagementIndex userEmail={userEmail} />  
       
     case MODULE_REGISTRY.CUSTOMER:
       return (
