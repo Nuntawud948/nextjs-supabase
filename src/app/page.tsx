@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import { TableRow, TableCell } from '@/components/ui/table'
 import { Plus } from 'lucide-react'
 
-// 🟢 อิมพอร์ตกลุ่มโมดูลย่อยที่จัดสรรอย่างเป็นระเบียบ
 import { Sidebar } from '@/components/structure/sidebar'
 import { DashboardStats } from '@/components/structure/dashboard-stats'
 import { CustomDataTable } from '@/components/structure/custom-data-table'
@@ -17,8 +16,9 @@ import { CreateVehicle } from '@/vehicle/CreateVehicle'
 import { EditVehicle } from '@/vehicle/EditVehicle'
 import { DeleteVehicle } from '@/vehicle/DeleteVehicle'
 import { VehicleResponseDTO } from '@/dto/vehicle'
+import { vehicleService } from '@/services/vehicleService'
 
-export default function HomePage() {
+export default function RootDashboardPage() {
   const router = useRouter()
   const [vehicle, setVehicle] = useState<VehicleResponseDTO[]>([])
   const [loading, setLoading] = useState(true)
@@ -43,12 +43,11 @@ export default function HomePage() {
 
   async function fetchVehicles() {
     setLoading(true)
-    const { data, error } = await supabase.from('vehicles').select('*').order('created_at', { ascending: false })
-    if (data) setVehicle(data)
+    const data = await vehicleService.getAllVehicles()
+    setVehicle(data)
     setLoading(false)
   }
 
-  // คำนวณยอดสถิติจริงจากข้อมูลอาเรย์อัตโนมัติ
   const totalVehicles = vehicle.length
   const availableVehicles = useMemo(() => vehicle.filter(v => v.status === 'available').length, [vehicle])
   const maintenanceVehicles = useMemo(() => vehicle.filter(v => v.status !== 'available').length, [vehicle])
@@ -56,43 +55,29 @@ export default function HomePage() {
   if (!email) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <p className="text-sm font-medium text-slate-500 animate-pulse">กำลังตรวจสอบสิทธิ์...</p>
+        <p className="text-sm font-medium text-slate-500 animate-pulse">กำลังตรวจสอบสิทธิ์หน้าหลัก...</p>
       </div>
     )
   }
 
   return (
     <div className="min-h-screen flex bg-slate-50/50 text-slate-900 font-sans">
-      
-      {/* 🔮 เรียกใช้งาน Sidebar Component ที่แยกไฟล์ออกไปเพื่อความยืดหยุ่นในอนาคต */}
       <Sidebar email={email} />
 
-      {/* 🚀 MAJOR CONTENT AREA */}
-      <main className="flex-1 p-6 md:p-8 space-y-6 max-w-7xl mx-auto w-full">
-        
-        {/* TOP BAR */}
+      <main className="flex-1 p-6 md:p-8 space-y-6 max-w-7xl mx-auto w-full overflow-y-auto">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200/60 pb-5">
           <div>
             <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">📊 ระบบจัดการยานพาหนะ</h1>
             <p className="text-sm text-slate-500 mt-0.5">ตรวจสอบสถานะ ติดตามการซ่อมบำรุง และค้นหาข้อมูลรถยนต์ทั้งหมด</p>
           </div>
-          <Button 
-            onClick={() => setIsCreateOpen(true)} 
-            className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20 rounded-xl font-medium gap-2 self-start sm:self-center px-4 h-11 cursor-pointer"
-          >
+          <Button onClick={() => setIsCreateOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white shadow-md rounded-xl font-medium gap-2 px-4 h-11 cursor-pointer">
             <Plus size={18} />
             <span>เพิ่มข้อมูลรถยนต์</span>
           </Button>
         </div>
 
-        {/* 📊 BENTO STATS CARDS */}
-        <DashboardStats 
-          totalVehicles={totalVehicles}
-          availableVehicles={availableVehicles}
-          maintenanceVehicles={maintenanceVehicles}
-        />
+        <DashboardStats totalVehicles={totalVehicles} availableVehicles={availableVehicles} maintenanceVehicles={maintenanceVehicles} />
 
-        {/* 📋 SMART DATA TABLE CONTAINER */}
         <div className="bg-white rounded-2xl border border-slate-200/60 shadow-xs overflow-hidden p-1">
           <CustomDataTable
             columns={[
@@ -118,33 +103,23 @@ export default function HomePage() {
                 <td className="px-6 py-4 text-sm text-slate-600">{v.brand}</td>
                 <td className="px-6 py-4 text-sm text-slate-600">{v.model}</td>
                 <td className="px-6 py-4 text-sm">
-                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
-                    v.status === 'available' 
-                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60' 
-                      : 'bg-rose-50 text-rose-700 border border-rose-200/60'
-                  }`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${
-                      v.status === 'available' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'
-                    }`} />
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${v.status === 'available' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60' : 'bg-rose-50 text-rose-700 border border-rose-200/60'}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${v.status === 'available' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
                     {v.status === 'available' ? 'ว่าง' : 'ซ่อมบำรุง'}
                   </span>
                 </td>
                 <td className="px-6 py-4 text-sm text-right">
-                  <CustomActionDropdown 
-                    onEdit={() => { setSelectedVehicle(v); setIsEditOpen(true); }}
-                    onDelete={() => { setSelectedVehicle(v); setIsDeleteOpen(true); }}
-                  />
+                  <CustomActionDropdown onEdit={() => { setSelectedVehicle(v); setIsEditOpen(true); }} onDelete={() => { setSelectedVehicle(v); setIsDeleteOpen(true); }} />
                 </td>
               </TableRow>
             )}
           />
         </div>
-
-        {/* 📥 GROUP DIALOG MANAGER */}
-        <CreateVehicle isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} onSuccess={() => { fetchVehicles(); setIsCreateOpen(false); }} />
-        <EditVehicle isOpen={isEditOpen} vehicle={selectedVehicle} onClose={() => { setIsEditOpen(false); setSelectedVehicle(null); }} onSuccess={() => { fetchVehicles(); setIsEditOpen(false); setSelectedVehicle(null); }} />
-        <DeleteVehicle isOpen={isDeleteOpen} vehicleId={selectedVehicle?.id || null} license={selectedVehicle?.license || null} onClose={() => { setIsDeleteOpen(false); setSelectedVehicle(null); }} onSuccess={() => { fetchVehicles(); setIsDeleteOpen(false); setSelectedVehicle(null); }} />
       </main>
+
+      <CreateVehicle isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} onSuccess={() => { fetchVehicles(); setIsCreateOpen(false); }} />
+      <EditVehicle isOpen={isEditOpen} vehicle={selectedVehicle} onClose={() => { setIsEditOpen(false); setSelectedVehicle(null); }} onSuccess={() => { fetchVehicles(); setIsEditOpen(false); setSelectedVehicle(null); }} />
+      <DeleteVehicle isOpen={isDeleteOpen} vehicleId={selectedVehicle?.id || null} license={selectedVehicle?.license || null} onClose={() => { setIsDeleteOpen(false); setSelectedVehicle(null); }} onSuccess={() => { fetchVehicles(); setIsDeleteOpen(false); setSelectedVehicle(null); }} />
     </div>
   )
 }
