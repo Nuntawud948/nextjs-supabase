@@ -1,6 +1,11 @@
 'use client'
 
 import React from 'react'
+
+// 🟢 1. สับเปลี่ยนสายไฟ: เรียกอิมพอร์ตหน้าจอรถยนต์เวอร์ชันสถาปัตยกรรมใหม่จากเลเยอร์ views
+import { VehicleIndex } from '@/views/vsms/Vehicle/VehicleIndex'
+
+// 🟡 2. กลุ่มโมดูลเดิม (HRMS / Management): ชี้ไปที่พาธเดิมก่อนชั่วคราว จนกว่าจะถึงคิว Refactor ในเฟสถัดไป
 import { HumanResourceIndex } from '@/app/HumanResource/humanresourceIndex'
 import { MenuManagementIndex } from '@/app/MenuManagement/menuManagementIndex'
 
@@ -8,8 +13,8 @@ export const MODULE_REGISTRY = {
   HUMAN_RESOURCE: 'humanresource',
   CUSTOMER: 'customer',
   PURCHASE: 'purchase',
-  MAINTENANCE: 'maintenance',
-  MENU_MANAGEMENT: 'menus' // 🟢 ลงทะเบียนคีย์เวิร์ดหน้า /menus
+  MAINTENANCE: 'maintenance', // 🚗 คีย์เวิร์ดสำหรับระบุ URL เข้าสู่ระบบจัดการยานพาหนะ (VSMS)
+  MENU_MANAGEMENT: 'menus'
 } as const
 
 interface ModuleDispatcherProps {
@@ -21,6 +26,7 @@ export function ModuleDispatcher({ slug, userEmail }: ModuleDispatcherProps) {
   const currentModule = slug[0].toLowerCase()
 
   switch (currentModule) {
+   
     case MODULE_REGISTRY.HUMAN_RESOURCE:
       return <HumanResourceIndex userEmail={userEmail} />
 
@@ -40,14 +46,6 @@ export function ModuleDispatcher({ slug, userEmail }: ModuleDispatcherProps) {
         <div className="p-8 bg-white border border-slate-200/60 rounded-2xl text-center shadow-xs">
           <h2 className="text-xl font-bold text-slate-800">💰 ระบบจัดซื้อและพัสดุ (Purchase Order)</h2>
           <p className="text-sm text-slate-400 mt-2">พื้นที่เตรียมพร้อมพัฒนาฟังก์ชันใบสั่งซื้อพัสดุระบบ TMS</p>
-        </div>
-      )
-      
-    case MODULE_REGISTRY.MAINTENANCE:
-      return (
-        <div className="p-8 bg-white border border-slate-200/60 rounded-2xl text-center shadow-xs">
-          <h2 className="text-xl font-bold text-slate-800">🔧 ระบบรายงานซ่อมบำรุง (Maintenance Tracking)</h2>
-          <p className="text-sm text-slate-400 mt-2">พื้นที่เตรียมพร้อมพัฒนาฟังก์ชันแจ้งซ่อมยานพาหนะตามระยะทาง</p>
         </div>
       )
 
